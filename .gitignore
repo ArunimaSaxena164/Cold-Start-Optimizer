@@ -1,0 +1,27 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+venv/
+.venv/
+
+# --- Node / React ---
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Misc ---
+*.sqlite3
+*.db

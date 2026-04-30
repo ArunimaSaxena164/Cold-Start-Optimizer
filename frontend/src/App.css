@@ -1,0 +1,120 @@
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+.container {
+  max-width: 1100px;
+  text-align: center;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.header p {
+  color: #94a3b8;
+}
+
+/* ===== BUTTONS ===== */
+.buttons {
+  margin-top: 20px;
+}
+
+button {
+  background: #3b82f6;
+  border: none;
+  padding: 12px 20px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+/* ===== PANEL ===== */
+.panel {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.panel input {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  width: 120px;
+}
+
+/* ===== METRICS ===== */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.card span {
+  display: block;
+  font-size: 22px;
+  margin-top: 5px;
+  color: #38bdf8;
+}
+
+/* ===== CHARTS ===== */
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.chart {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+/* ===== DATASET ===== */
+.dataset {
+  margin-bottom: 50px;
+}
+
+.dataset h2 {
+  margin-bottom: 20px;
+}
