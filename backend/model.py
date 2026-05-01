@@ -12,9 +12,9 @@ df = df.sort_values('timestamp')
 invocations = df.groupby(df['timestamp'].dt.floor('s')).size()
 
 data = invocations.values.astype(float)
-data = (data - np.mean(data)) / np.std(data)
+data = (data - np.mean(data)) / (np.std(data) + 1e-6)
 
-# -------- SEQUENCES --------
+# -------- CREATE SEQUENCES --------
 def create_sequences(data, seq_length=10):
     X, y = [], []
     for i in range(len(data) - seq_length):
@@ -24,7 +24,7 @@ def create_sequences(data, seq_length=10):
 
 X, y = create_sequences(data)
 
-# -------- MODEL --------
+# -------- MODEL (ALGO 1: PREDICTION) --------
 class RNNModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -50,68 +50,86 @@ for epoch in range(10):
     loss.backward()
     optimizer.step()
 
-# -------- ALGO 1: Prediction --------
-def predict():
-    last_seq = X[-1]
-    inp = torch.tensor(last_seq, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
-    return model(inp).detach().numpy().flatten()[0]
-
-# -------- ALGO 2: Prewarming --------
+# -------- ALGO 2: PREWARMING --------
 def compute_probability(pred, sigma):
-    return abs(pred) / (abs(pred) + sigma + 1e-6)
+    return 1 / (1 + np.exp(-pred))  # sigmoid
 
-def prewarm(p, C):
-    return int(np.ceil(p * C)) if p * C >= 0.5 else 0
+def prewarm_instances(p, required, capacity):
+    max_prewarm_ratio = 0.8
 
-# -------- ALGO 3: Capacity (PID) --------
-integral = 0
-prev_error = 0
+    prewarm = int(np.ceil(p * required))
 
-def update_capacity(C, error):
-    global integral, prev_error
+    # 🔥 FINAL FIX: enforce BOTH limits
+    return min(prewarm, int(max_prewarm_ratio * required), int(capacity))
+
+# -------- ALGO 3: CAPACITY (PID CONTROL - STABLE) --------
+def update_capacity(base_capacity, error):
     Kp, Ki, Kd = 0.1, 0.01, 0.05
 
-    integral += error
-    derivative = error - prev_error
-    prev_error = error
+    integral = error
+    derivative = error
 
-    return C + Kp*error + Ki*integral + Kd*derivative
+    C_new = base_capacity + Kp*error + Ki*integral + Kd*derivative
 
-# -------- ALGO 4: Load Adjustment --------
-def adjust(pred, threshold, C):
-    return int(np.ceil(pred * C)) if pred > threshold else 0
+    return C_new
 
-# -------- MAIN --------
+# -------- ALGO 4: LOAD ADJUSTMENT --------
+def adjust_load(pred, threshold, capacity):
+    return int(np.ceil(pred * capacity)) if pred > threshold else 0
+
+def dynamic_threshold(values):
+    return np.mean(values) + np.std(values)
+
+# -------- MAIN FUNCTION --------
 def get_prediction(requests, machines):
+
+    # Normalize input
     norm_req = (requests - np.mean(data)) / (np.std(data) + 1e-6)
 
     seq = list(data[-9:]) + [norm_req]
-
-    inp = torch.tensor(seq, dtype=torch.float32)\
-            .unsqueeze(0).unsqueeze(-1)
+    inp = torch.tensor(seq, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
 
     pred = model(inp).detach().numpy().flatten()[0]
 
     sigma = np.std(data)
-    C = max(1, machines * 5)
 
-    # probability
-    p = abs(pred) / (abs(pred) + sigma + 1e-6)
+    # -------- REQUIRED --------
+    required = int(np.ceil(requests / 100))
 
-    # prewarm
-    prewarm = int(np.ceil(p * C)) if p * C >= 0.5 else 0
+    # -------- BASE CAPACITY --------
+    base_capacity = max(1, machines * 5)
 
-    # 🔥 NEW: estimate required containers from requests
-    required = int(np.ceil(requests / 100))   # assumption: 1 container = 100 req
+    # -------- PREWARM --------
+    p = compute_probability(pred, sigma)
 
-    # 🔥 FIXED cold start logic
+    # scale probability (balanced tuning)
+    p = min(1.0, p * 3)
+
+    prewarm = prewarm_instances(p, required, base_capacity)
+
+    # -------- CAPACITY UPDATE --------
+    error = required - prewarm
+    capacity = update_capacity(base_capacity, error)
+
+    # clamp capacity
+    capacity = max(1, min(capacity, base_capacity))
+
+    # -------- LOAD ADJUSTMENT --------
+    threshold = dynamic_threshold(data)
+    adjusted = adjust_load(pred, threshold, capacity)
+
+    # -------- FINAL CONTAINERS --------
+    containers = min(required, int(capacity))
+
+    # -------- COLD START --------
     cold_start = max(0, required - prewarm)
 
     return {
-        "containers_needed": prewarm,
+        "containers_needed": int(containers),
         "prediction": float(pred),
         "prewarm": int(prewarm),
-        "capacity": float(C),
+        "adjusted": int(adjusted),
+        "capacity": float(capacity),
         "required": int(required),
         "cold_start": int(cold_start)
     }

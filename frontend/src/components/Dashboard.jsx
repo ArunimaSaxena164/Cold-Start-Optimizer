@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DatasetView from "./DatasetView";
 import Simulator from "./Simulator";
-
+import Explanation from "./Explanation";
 function Dashboard() {
   const [simulatedData, setSimulatedData] = useState([]);
 
@@ -10,8 +10,8 @@ function Dashboard() {
 
       {/* HEADER */}
       <div className="header">
-        <h1 style={{"font-size":"40px"}}>Serverless Cold Start Optimization</h1>
-        <p style={{"font-size":"20px"}}>Predict workload, prewarm containers, reduce latency</p>
+        <h1 style={{"font-size":"50px"}}>Serverless Cold Start Optimization</h1>
+        <p>Predict workload, prewarm containers, reduce latency</p>
       </div>
 
       {/* DATASET */}
@@ -21,7 +21,8 @@ function Dashboard() {
 
       {/* SIMULATOR */}
       <Simulator setSimulatedData={setSimulatedData} />
-
+ {/* EXPLANATION */}
+      <Explanation />
     </div>
   );
 }

@@ -118,3 +118,52 @@ button:hover {
 .dataset h2 {
   margin-bottom: 20px;
 }
+/* ===== EXPLANATION SECTION ===== */
+
+.explanation {
+  margin-top: 80px;
+  padding: 30px;
+  background: #1e293b;
+  border-radius: 12px;
+}
+
+.explanation h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.explain-intro {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 30px;
+}
+
+.explain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.explain-card {
+  background: #0f172a;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.explain-card h3 {
+  color: #38bdf8;
+  margin-bottom: 8px;
+}
+
+.explain-card p {
+  font-size: 14px;
+  color: #cbd5f5;
+}
+
+.explain-summary {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
+}
