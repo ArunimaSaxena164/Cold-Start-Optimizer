@@ -58,3 +58,8 @@ for epoch in range(10):
 torch.save(model.state_dict(), "model.pth")
 
 print("Model saved as model.pth")
+# Run this in your local terminal to get the fixed numbers
+print(f"DATA_MEAN = {np.mean(data)}")
+print(f"DATA_STD = {np.std(data)}")
+print(f"DATA_THRESHOLD = {np.mean(data) + np.std(data)}")
+print(data[-9:])
