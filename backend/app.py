@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from model import get_prediction, data
+from model import get_prediction
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,8 +20,3 @@ class Input(BaseModel):
 def predict_api(input: Input):
     return get_prediction(input.requests, input.machines)
 
-@app.get("/dataset")
-def dataset():
-    return {
-        "data": data[:200].tolist()   # make sure key = "data"
-    }
